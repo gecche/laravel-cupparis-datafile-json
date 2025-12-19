@@ -1,0 +1,74 @@
+{
+    "name": "gecche/laravel-cupparis-datafile",
+    "description": "Gestione dei datafile csv e excel",
+    "keywords": ["laravel", "cupparis"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Giacomo Terreni",
+            "email": "giacomo.terreni@gmail.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "http://github.com/gecche/laravel-breeze"
+        },
+        {
+            "type": "vcs",
+            "url": "http://github.com/gecche/laravel-cupparis-helpers"
+        },
+        {
+            "type": "vcs",
+            "url": "http://github.com/gecche/laravel-cupparis-queue"
+        },
+        {
+            "type": "vcs",
+            "url": "http://github.com/gecche/laravel-dbhelper"
+        }
+    ],
+    "require": {
+        "laravel/framework": "^12.0",
+        "gecche/laravel-cupparis-helpers": "^12.0",
+        "gecche/laravel-breeze": "^12.0",
+        "gecche/laravel-dbhelper": "^12.0",
+        "gecche/laravel-cupparis-queue": "^12.0",
+        "spatie/simple-excel": "^3"
+
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.6",
+        "phpunit/phpunit": "^11.5",
+        "orchestra/testbench": "^10.0",
+        "codedungeon/phpunit-result-printer": "^0.1.0"
+    },
+    "autoload": {
+        "classmap": [
+
+        ],
+        "psr-4": {
+            "Gecche\\Cupparis\\DatafileJson\\": "src"
+        },
+        "files": [
+
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Gecche\\Cupparis\\DatafileJson\\DatafileJsonServiceProvider"
+            ],
+            "aliases": {
+                "DatafileJson": "Gecche\\Cupparis\\DatafileJson\\Facades\\DatafileJson"
+            }
+        }
+    }
+}
