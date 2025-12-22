@@ -1,5 +1,5 @@
 {
-    "name": "gecche/laravel-cupparis-datafile",
+    "name": "gecche/laravel-cupparis-datafile-json",
     "description": "Gestione dei datafile csv e excel",
     "keywords": ["laravel", "cupparis"],
     "license": "MIT",
