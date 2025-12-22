@@ -156,7 +156,7 @@ class DatafileJsonManager
         $this->job_id = $job_id;
     }
 
-    public function init($datafile_id, DatafileProviderInterface $datafileProvider, $filename = null, $job_id = null)
+    public function init($datafile_id, DatafileJsonProviderInterface $datafileProvider, $filename = null, $job_id = null)
     {
 
         $this->setJobId($job_id);
