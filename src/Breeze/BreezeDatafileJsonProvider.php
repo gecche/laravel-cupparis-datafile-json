@@ -306,7 +306,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
 
         $row = $this->formatDatafileRow($row);
 //        Log::info("Index: " . $index);
-        $model->fill($row);
+        $model->fillDatafile($row);
 
 
         $model->setDatafileIdValue($this->getDatafileId());
@@ -440,7 +440,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         $this->setDatafileId($datafileIdValue);
 
         $field = Arr::get($row_values, $fieldName, null);
-        $model->fill([$fieldName => $field]);
+        $model->fillDatafile([$fieldName => $field]);
 
         $model->setDatafileIdValue($this->getDatafileId());
         $model->setDatafileSheetValue($this->getCurrentSheet());
