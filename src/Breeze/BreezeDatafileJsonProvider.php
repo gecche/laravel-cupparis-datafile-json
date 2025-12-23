@@ -4,6 +4,7 @@ namespace Gecche\Cupparis\DatafileJson\Breeze;
 
 use Gecche\Breeze\Breeze;
 use Gecche\Breeze\Contracts\BreezeInterface;
+use Gecche\Cupparis\DatafileJson\Breeze\Contracts\BreezeDatafileJsonInterface;
 use Gecche\Cupparis\DatafileJson\DatafileJsonHandler;
 use Gecche\Cupparis\DatafileJson\DatafileJsonProviderInterface;
 use Gecche\Cupparis\DatafileJson\Models\DatafileJson;
@@ -360,7 +361,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         return true;
     }
 
-    public function associateRow(BreezeDatafileInterface $modelDatafile)
+    public function associateRow(BreezeDatafileJsonInterface $modelDatafile, Model $modelTarget = null)
     {
         return new $this->modelTargetName;
     }
@@ -370,7 +371,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         return $row;
     }
 
-    public function formatRow(BreezeDatafileInterface $modelDatafile, Model $modelTarget = null)
+    public function formatRow(BreezeDatafileJsonInterface $modelDatafile, Model $modelTarget = null)
     {
         $values = $modelDatafile->toArray();
         foreach ($this->excludeFromFormat as $field) {

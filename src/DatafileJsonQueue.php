@@ -12,12 +12,15 @@ use Illuminate\Support\Facades\Log;
 class DatafileJsonQueue extends MainQueue
 {
 
+    public const DATAFILE_JSON_LOAD = 'datafile_json_load';
+    public const DATAFILE_JSON_SAVE = 'datafile_json_save';
+
     public function load($job, $data)
     {
-        $this->jobStart($job, $data, 'datafile_load');
+        $this->jobStart($job, $data, self::DATAFILE_JSON_LOAD);
         try {
 
-            $this->validateData("datafile_load");
+            $this->validateData(self::DATAFILE_JSON_LOAD);
             $this->ensureUser(Arr::get($data, 'userId'));
 
             $filename = Arr::get($this->data, 'fileName');
@@ -66,11 +69,11 @@ class DatafileJsonQueue extends MainQueue
 
     public function save($job, $data)
     {
-        $this->jobStart($job, $data, 'datafile_save');
+        $this->jobStart($job, $data, self::DATAFILE_JSON_SAVE);
 
         try {
 
-            $this->validateData("datafile_save");
+            $this->validateData(self::DATAFILE_JSON_SAVE);
             $this->ensureUser(Arr::get($data, 'userId'));
 
 
@@ -101,12 +104,12 @@ class DatafileJsonQueue extends MainQueue
     protected function validateData($job_type)
     {
 
-        if ($job_type == "datafile_load") {
+        if ($job_type == self::DATAFILE_JSON_LOAD) {
             if (!Arr::get($this->data, 'fileName', false)) {
                 throw new Exception("File datafile non definito!");
             }
         }
-        if ($job_type == "datafile_save") {
+        if ($job_type == self::DATAFILE_JSON_SAVE) {
             if (!Arr::get($this->data, 'datafile_load_id', false)) {
                 throw new Exception("DatafileJson id non definito!");
             }
