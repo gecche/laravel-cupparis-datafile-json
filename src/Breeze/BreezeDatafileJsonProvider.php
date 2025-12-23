@@ -99,7 +99,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
             throw new \ReflectionException('Invalid class for model target');
         };
 
-        $this->datafileModelErrorName = ($this->modelDatafileName)::getErrorsModelName();
+        $this->datafileModelErrorName = null;//($this->modelDatafileName)::getErrorsModelName();
         $this->datafileModelName = Arr::get($this->config, 'datafile_model', DatafileJson::class);
 
         if (is_null($this->headers)) {

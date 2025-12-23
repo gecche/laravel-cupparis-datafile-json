@@ -1,9 +1,9 @@
-<?php namespace Gecche\Cupparis\Datafile\Driver;
+<?php namespace Gecche\Cupparis\DatafileJson\Driver;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Arr;
 
-class CsvDriver extends DatafileDriver
+class CsvDriver extends DatafileJsonDriver
 {
 
     protected $filePropertiesKeys = [

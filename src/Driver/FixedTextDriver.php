@@ -1,4 +1,4 @@
-<?php namespace Gecche\Cupparis\Datafile\Driver;
+<?php namespace Gecche\Cupparis\DatafileJson\Driver;
 
 use Illuminate\Support\Facades\Log;
 
