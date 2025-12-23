@@ -2,6 +2,7 @@
 
 namespace Gecche\Cupparis\DatafileJson\Breeze\Concerns;
 
+use Gecche\Cupparis\DatafileJson\DatafileJsonServiceProvider;
 use Illuminate\Support\Facades\Validator;
 
 trait HasDatafileJsonValidation
@@ -56,7 +57,7 @@ trait HasDatafileJsonValidation
             // If $ruleset is a pipe-separated string, switch it to array
             $ruleset = (is_string($ruleset)) ? explode('|', $ruleset) : $ruleset;
 
-            $ruleName = 'unique_datafile';
+            $ruleName = DatafileJsonServiceProvider::UNIQUE_DATAFILE_JSON_RULE;
             $ruleNameFull = $ruleName . ':';
             foreach ($ruleset as &$rule) {
                 if (strpos($rule, $ruleNameFull) === 0) {
@@ -118,7 +119,7 @@ trait HasDatafileJsonValidation
             // If $ruleset is a pipe-separated string, switch it to array
             $ruleset = (is_string($ruleset)) ? explode('|', $ruleset) : $ruleset;
 
-            $ruleName = 'exists_datafile';
+            $ruleName = DatafileJsonServiceProvider::EXISTS_DATAFILE_JSON_RULE;
             $ruleNameFull = $ruleName . ':';
             foreach ($ruleset as &$rule) {
                 if (strpos($rule, $ruleNameFull) === 0) {

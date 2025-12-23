@@ -85,7 +85,7 @@ class DatafileJsonQueue extends MainQueue
             DatafileJson::setFormPost($this->data);
             DatafileJson::init($data['datafile_load_id'], $datafileProvider, null, $this->acQueue->getKey());
 
-            DatafileJson::getDatafileJson();
+            DatafileJson::getDatafile();
             $sheetsNames = DatafileJson::getSheetsNames(true);
             DatafileJson::beforeSave();
             foreach ($sheetsNames as $sheetName) {

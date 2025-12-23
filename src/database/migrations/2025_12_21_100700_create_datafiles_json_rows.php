@@ -13,7 +13,7 @@ return new class extends Migration
 	 */
 	public function up()
 	{
-		Schema::create('datafile_json_rows', function(Blueprint $table)
+		Schema::create('datafiles_json_rows', function(Blueprint $table)
 		{
 			$table->id();
 			$table->integer('row')->unsigned()->nullable();
@@ -38,7 +38,7 @@ return new class extends Migration
 	 */
 	public function down()
 	{
-		Schema::drop('datafile_json_rows');
+		Schema::drop('datafiles_json_rows');
 	}
 
 };
