@@ -85,6 +85,11 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
 
     protected $useTransactions = true;
 
+    protected $datafileRules = [];
+
+    protected $datafileCustomMessages = [];
+
+    protected $datafileCustomAttributes = [];
 
     public function __construct()
     {
@@ -309,12 +314,12 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         $model->setDatafileSheetValue($sheet);
         $model->setRowIndexValue($index);
 
-//        $validator = $model->getDatafileValidator();
-        $model->save();
+        $validator = $model->getDatafileValidator(null,true,$this->datafileRules,$this->datafileCustomMessages,$this->datafileCustomAttributes);
         //echo "$modelDatafileName validatore = $validator\n";
 //        Log::info("DATAFILE ERRORS: ".$index);
-//        $this->setDatafileErrors($sheet, $index, $model, $validator);
-
+        $errors = $this->getDatafileErrors($sheet, $index, $model, $validator);
+        $model->setRowDataErrors($errors);
+        $model->save();
     }
 
     public function saveRow($sheet, $index)
@@ -393,8 +398,8 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         $modelDatafileName = $this->modelDatafileName;
         $modelDatafile = new $modelDatafileName;
         return $modelDatafileName::where($modelDatafile->getDatafileIdField(), '=', $this->getDatafileId())
-                ->where($modelDatafile->getDatafileSheetField(),$this->getCurrentSheet())
-                ->count();
+            ->where($modelDatafile->getDatafileSheetField(),$this->getCurrentSheet())
+            ->count();
 
     }
 
@@ -407,7 +412,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         $modelDatafileName = $this->modelDatafileName;
         $modelDatafile = new $modelDatafileName;
         $entry = $modelDatafileName::where($modelDatafile->getDatafileIdField(), '=', $this->getDatafileId())
-                    ->where($modelDatafile->getDatafileSheetField(),$this->getCurrentSheet());
+            ->where($modelDatafile->getDatafileSheetField(),$this->getCurrentSheet());
         if ($this->stringRowIndexInDb) {
             $entry = $entry->orderByRaw('ABS('.$modelDatafile->getRowIndexField().')')->first();
         } else {
@@ -441,9 +446,11 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         $model->setDatafileSheetValue($this->getCurrentSheet());
         $model->setRowIndexValue($index);
 
+        $errors = $this->getDatafileErrors($index, $model, $model->getValidator());
+
+        $model->setRowDataErrors($errors);
         $model->save();
         //echo "$modelDatafileName validatore = $validator\n";
-        $this->setDatafileErrors($index, $model, $model->getValidator());
 
 
         $this->finalizeDatafileErrors();
@@ -503,15 +510,16 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         $this->finalizeDatafileErrors();
     }
 
-    public function setDatafileErrors($sheet, $index, $model, Validator $validator)
+    public function getDatafileErrors($sheet, $index, $model, Validator $validator)
     {
         $datafileErrorName = $this->datafileModelErrorName;
         //CANCELLA errori gia' presenti assocaiti a quella riga
-        $model->errors()->delete();
+        //$model->errors()->delete();
 
+        $data = $validator->getData();
+        $errors = array_fill_keys(array_keys($data),[]);
         if (!$validator->passes()) {
 
-            $data = $validator->getData();
             $failedRules = $validator->failed();
 
 //        Log::info('FAILED RULES');
@@ -522,22 +530,15 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
             foreach ($failedRules as $field_name => $rule) {
                 foreach ($rule as $error_name => $ruleParameters) {
 
-                    $datafileError = new $datafileErrorName(array(
-                        'datafile_id' => $this->getDatafileId(),
-                        'field_name' => $field_name,
-                        'error_name' => $error_name,
-                        'type' => 'error', //per ora sono tutti error (poi ci si puo' mettere ad esempio warning, vedremo come)
-                        'template' => 0, //per ora non ci sono templates, forse questo va a sparire
-                        'param' => NULL, //questo sempre null, eventualmnete va aggiornato alla fine del primo caricamento delle righe
-                        'value' => $data[$field_name],
-                        'row' => $index,
-                        'datafile_sheet' => $sheet,
-                    ));
-                    $model->errors()->save($datafileError);
+                    $errors[$field_name][$error_name] = [];
+
+                    //$model->errors()->save($datafileError);
                 }
 
             }
         }
+
+        return $errors;
 
     }
 
@@ -605,7 +606,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
 
     public function afterLoad()
     {
-        $this->finalizeDatafileErrors();
+        //$this->finalizeDatafileErrors();
     }
 
     public function beforeSave()

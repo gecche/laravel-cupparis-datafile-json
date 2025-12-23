@@ -3,6 +3,7 @@
 namespace Gecche\Cupparis\DatafileJson\Breeze\Concerns;
 
 use Gecche\Cupparis\DatafileJson\DatafileJsonServiceProvider;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 trait HasDatafileJsonValidation
@@ -39,7 +40,10 @@ trait HasDatafileJsonValidation
     {
         $validatorSettings = $this->getDatafileModelValidationSettings($uniqueRules, $rules, $customMessages, $customAttributes);
 
-        $data = $data ?: $this->getAttributes();
+        if (is_null($data)) {
+            $rowData = $this->row_data;
+            $data = Arr::get($rowData,'values',[]);
+        }
 
         return Validator::make($data, $validatorSettings['rules'], $validatorSettings['customMessages'], $validatorSettings['customAttributes']);
     }
