@@ -15,10 +15,6 @@ interface BreezeDatafileJsonInterface extends BreezeInterface {
 
 
 
-    /*
-     * DA METTERE IN RELATIONS
-     */
-    public function errors();
 
     /**
      * @return string
@@ -61,12 +57,6 @@ interface BreezeDatafileJsonInterface extends BreezeInterface {
     public function setRowIndexValue($rowIndexValue);
 
 
-    /*
-     * CALCOLO DEGLI HEADERS DI DEFAULT CON DB HELPERS
-     */
-    public function getDefaultHeaders();
-
-    public function getHeaders();
 
 
 
@@ -84,10 +74,5 @@ interface BreezeDatafileJsonInterface extends BreezeInterface {
         Closure $beforeSave = null,
         Closure $afterSave = null
     );
-
-
-    public static function getErrorsModelName();
-
-    public static function getDatafileModelName();
 
 }

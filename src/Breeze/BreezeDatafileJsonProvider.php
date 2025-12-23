@@ -317,8 +317,10 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         $validator = $model->getDatafileValidator(null,true,$this->datafileRules,$this->datafileCustomMessages,$this->datafileCustomAttributes);
         //echo "$modelDatafileName validatore = $validator\n";
 //        Log::info("DATAFILE ERRORS: ".$index);
-        $errors = $this->getDatafileErrors($sheet, $index, $model, $validator);
+        $hasErrors = false;
+        $errors = $this->getDatafileErrors($sheet, $index, $model, $validator, $hasErrors);
         $model->setRowDataErrors($errors);
+        $model->setHasErrors($hasErrors);
         $model->save();
     }
 
@@ -343,8 +345,9 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
                 . $index . " - Sheet: " . $this->getCurrentSheet() . " - Datafile Id: " . $this->getDatafileId());
         }
 
-        if ($modelDatafile->errors()->count() > 0)
+        if ($modelDatafile->getHasErrors()) {
             return false;
+        }
 
 
         //Agganciare riga del modello target
@@ -378,7 +381,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
 
     public function formatRow(BreezeDatafileJsonInterface $modelDatafile, Model $modelTarget = null)
     {
-        $values = $modelDatafile->toArray();
+        $values = $modelDatafile->getRowDataValues();
         foreach ($this->excludeFromFormat as $field) {
             if (array_key_exists($field, $values)) {
                 unset($values[$field]);
@@ -446,9 +449,11 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         $model->setDatafileSheetValue($this->getCurrentSheet());
         $model->setRowIndexValue($index);
 
-        $errors = $this->getDatafileErrors($index, $model, $model->getValidator());
+        $hasErrors = false;
+        $errors = $this->getDatafileErrors($index, $model, $model->getValidator(),$hasErrors);
 
         $model->setRowDataErrors($errors);
+        $model->setHasErrors($hasErrors);
         $model->save();
         //echo "$modelDatafileName validatore = $validator\n";
 
@@ -510,7 +515,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         $this->finalizeDatafileErrors();
     }
 
-    public function getDatafileErrors($sheet, $index, $model, Validator $validator)
+    public function getDatafileErrors($sheet, $index, $model, Validator $validator, &$hasErrors)
     {
         $datafileErrorName = $this->datafileModelErrorName;
         //CANCELLA errori gia' presenti assocaiti a quella riga
@@ -520,6 +525,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         $errors = array_fill_keys(array_keys($data),[]);
         if (!$validator->passes()) {
 
+            $hasErrors = true;
             $failedRules = $validator->failed();
 
 //        Log::info('FAILED RULES');
