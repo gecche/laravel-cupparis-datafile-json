@@ -44,7 +44,7 @@ class ExistsDatafileJson implements ValidationRule
             ->first();
         if (!$recordDb) {
 
-            $record = DB::table('datafiles_json_uniques')
+            $record = DB::table('datafiles_json_unique_values')
                 ->where('value', $value)
                 ->where('field', $attribute)
                 ->where('datafile_id', $this->datafileId)
@@ -61,7 +61,7 @@ class ExistsDatafileJson implements ValidationRule
             'value' => $value,
         ];
         try {
-            DB::table('datafiles_json_uniques')
+            DB::table('datafiles_json_unique_values')
                 ->insert($uniqueData);
         } catch (\Throwable $e) {
 

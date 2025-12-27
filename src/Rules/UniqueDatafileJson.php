@@ -33,7 +33,7 @@ class UniqueDatafileJson implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $record = DB::table('datafiles_json_uniques')
+        $record = DB::table('datafiles_json_unique_values')
             ->where('value',$value)
             ->where('field',$attribute)
             ->where('datafile_id',$this->datafileId)
@@ -49,7 +49,7 @@ class UniqueDatafileJson implements ValidationRule
             'value' => $value,
         ];
         try {
-            DB::table('datafiles_json_uniques')
+            DB::table('datafiles_json_unique_values')
                 ->insert($uniqueData);
         } catch (\Throwable $e) {
 
