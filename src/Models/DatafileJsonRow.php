@@ -5,6 +5,7 @@ namespace Gecche\Cupparis\DatafileJson\Models;
 use Gecche\Breeze\Breeze;
 use Gecche\Cupparis\DatafileJson\Breeze\Concerns\BreezeDatafileJsonTrait;
 use Gecche\Cupparis\DatafileJson\Breeze\Concerns\HasDatafileJsonValidation;
+use Gecche\Cupparis\DatafileJson\Breeze\Concerns\UniqueValuesDatafileQueries;
 use Gecche\Cupparis\DatafileJson\Breeze\Contracts\BreezeDatafileJsonInterface;
 use Gecche\Cupparis\DatafileJson\Models\Relations\DatafileJsonRowRelations;
 
@@ -13,6 +14,8 @@ class DatafileJsonRow extends Breeze implements BreezeDatafileJsonInterface {
     use DatafileJsonRowRelations;
     use HasDatafileJsonValidation;
     use BreezeDatafileJsonTrait;
+    use UniqueValuesDatafileQueries;
+
 
     protected $table = 'datafiles_json_rows';
 

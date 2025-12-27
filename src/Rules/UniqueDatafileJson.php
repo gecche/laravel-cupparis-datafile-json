@@ -16,13 +16,15 @@ class UniqueDatafileJson implements ValidationRule
     protected $datafileId;
     protected $datafileSheet;
     protected $datafileType;
+    protected $rowIndex;
 
 
-    public function __construct($datafileId,$datafileSheet,$datafileType)
+    public function __construct($datafileId,$datafileSheet,$datafileType,$rowIndex)
     {
         $this->datafileId = $datafileId;
         $this->datafileSheet = $datafileSheet;
         $this->datafileType = $datafileType;
+        $this->rowIndex = $rowIndex;
     }
 
 
@@ -33,27 +35,10 @@ class UniqueDatafileJson implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $record = DB::table('datafiles_json_unique_values')
-            ->where('value',$value)
-            ->where('field',$attribute)
-            ->where('datafile_id',$this->datafileId)
-            ->where('datafile_sheet',$this->datafileSheet)
-            ->where('datafile_type',$this->datafileType)
-            ->first();
+        $record = $this->getDatafileUniqueValue($value,$attribute,$this->datafileId,$this->datafileSheet,$this->datafileType,$this->rowIndex);
 
-        $uniqueData = [
-            'field' => $attribute,
-            'datafile_id' => $this->datafileId,
-            'datafile_sheet' => $this->datafileSheet,
-            'datafile_type' => $this->datafileType,
-            'value' => $value,
-        ];
-        try {
-            DB::table('datafiles_json_unique_values')
-                ->insert($uniqueData);
-        } catch (\Throwable $e) {
+        $this->setDatafileUniqueValue($value,$attribute,$this->datafileId,$this->datafileSheet,$this->datafileType,$this->rowIndex);
 
-        }
 
         if ($record) {
             $fail("validation.unique_datafile_json")->translate();

@@ -71,7 +71,7 @@ trait HasDatafileJsonValidation
             foreach ($ruleset as &$rule) {
                 if ($this->checkUniqueDatafileRule($rule)) {
 
-                    $rule = new UniqueDatafileJson($datafile_id,$this->getDatafileSheetValue(),$this->datafile_type);
+                    $rule = new UniqueDatafileJson($datafile_id,$this->getDatafileSheetValue(),$this->datafile_type,$this->getRowIndexValue());
 
                 }
 
@@ -101,7 +101,7 @@ trait HasDatafileJsonValidation
 
                     $params = explode(',', substr($rule, strlen($ruleNameFull)), 3);
 
-                    $rule = new ExistsDatafileJson($datafile_id,$this->getDatafileSheetValue(),$this->datafile_type,
+                    $rule = new ExistsDatafileJson($datafile_id,$this->getDatafileSheetValue(),$this->datafile_type,$this->getRowIndexValue(),
                         Arr::get($params,0),Arr::get($params,1),Arr::get($params,2)
                     );
                 } // end if strpos unique
