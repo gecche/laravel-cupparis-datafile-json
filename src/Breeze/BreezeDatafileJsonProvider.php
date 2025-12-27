@@ -310,6 +310,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
 
 
         $model->setDatafileIdValue($this->getDatafileId());
+        $model->datafile_type(static::class);
 //        Log::info("Sheet:: ".$sheet);
         $model->setDatafileSheetValue($sheet);
         $model->setRowIndexValue($index);
@@ -393,7 +394,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
 
     public function finalizeRow($values, $modelDatafile, $modelTarget)
     {
-        return true;
+        return;
     }
 
     public function countRows()
@@ -425,95 +426,8 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         return Arr::get($entry, $modelDatafile->getRowIndexField(), 0);
     }
 
-    /*
-     * Funzione per far el'update di una riga una volta corretti gli errori
-     */
-    public function fixErrorDatafileRow($row_values = array())
-    {
-
-        $datafileIdValue = Arr::get($row_values, 'datafile_id', -1);
-        $datafileTableIdValue = Arr::get($row_values, 'datafile_table_id', -1);
-        $index = Arr::get($row_values, 'row', -1);
-        $fieldName = Arr::get($row_values, 'field_name', -1);
-
-        $modelName = $this->modelDatafileName;
-        $model = $modelName::find($datafileTableIdValue);
 
 
-        $this->setDatafileId($datafileIdValue);
-
-        $field = Arr::get($row_values, $fieldName, null);
-        $model->fillDatafile([$fieldName => $field]);
-
-        $model->setDatafileIdValue($this->getDatafileId());
-        $model->setDatafileSheetValue($this->getCurrentSheet());
-        $model->setRowIndexValue($index);
-
-        $hasErrors = false;
-        $errors = $this->getDatafileErrors($index, $model, $model->getValidator(),$hasErrors);
-
-        $model->setRowDataErrors($errors);
-        $model->setHasErrors($hasErrors);
-        $model->save();
-        //echo "$modelDatafileName validatore = $validator\n";
-
-
-        $this->finalizeDatafileErrors();
-
-
-    }
-
-    public function updateDatafileRow($row_values = array())
-    {
-
-        $model = new $this->modelDatafileName;
-        $datafileIdValue = $row_values[$model->getDatafileIdField()];
-        $sheet = $row_values[$model->getDatafileSheetField()];
-        $index = $row_values[$model->getRowIndexField()];
-
-        $this->setDatafileId($datafileIdValue);
-
-        $this->saveDatafileRow($row_values, $sheet, $index, $row_values['id']);
-
-        $this->finalizeDatafileErrors();
-
-
-    }
-
-
-    public function massiveUpdate($row_values = array())
-    {
-
-        $model = new $this->modelDatafileName;
-//        $datafileIdValue = $row_values[$model->getDatafileIdField()];
-        $rowValues = $row_values['values'];
-        $fieldName = $row_values['field'];
-
-//        $datafileIdField = $model->getDatafileIdField();
-        $table = $model->getTable();
-        $pkName = $model->getKeyName();
-
-//        Log::info('MASSIVE: ');
-//        Log::info($table . ' ' . $pkName . ' ' . $fieldName);
-//        Log::info(print_r($rowValues, true));
-        foreach ($rowValues as $pk => $value) {
-            DB::table($table)
-                ->where($pkName, $pk)
-                ->update([$fieldName => intval($value)]);
-        }
-
-
-    }
-
-    /**
-     * esegue una rivalidazione delle righe nel db del jobId
-     * @param $job_id
-     */
-    public function revalidate($job_id)
-    {
-        $this->setDatafileId($job_id);
-        $this->finalizeDatafileErrors();
-    }
 
     public function getDatafileErrors($sheet, $index, $model, Validator $validator, &$hasErrors)
     {
@@ -526,22 +440,28 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
         if (!$validator->passes()) {
 
             $hasErrors = true;
-            $failedRules = $validator->failed();
+//            $failedRules = $validator->failed();
+            $messageBag = $validator->getMessageBag();
+            $messages = $messageBag->getMessages();
 
 //        Log::info('FAILED RULES');
 //        Log::info(print_r($validator->getRules(),true));
 //        Log::info(print_r($data,true));
 //        Log::info(print_r($failedRules,true));
 
-            foreach ($failedRules as $field_name => $rule) {
-                foreach ($rule as $error_name => $ruleParameters) {
-
-                    $errors[$field_name][$error_name] = [];
-
-                    //$model->errors()->save($datafileError);
-                }
-
+            foreach ($messages as $field => $fieldMessages) {
+                $errors[$field] = $fieldMessages;
             }
+//
+//            foreach ($failedRules as $field_name => $rule) {
+//                foreach ($rule as $error_name => $ruleParameters) {
+//                    $errors[$field_name][] = [
+//                        'name' => $error_name,
+//                        'message' => Arr::get($messages,$field_name),
+//                    ];
+//                }
+//
+//            }
         }
 
         return $errors;
@@ -601,7 +521,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
 
         $data = [
             'datafile_id' => $this->getDatafileId(),
-            'datafile_type' => trim($this->modelDatafileName, "\\"),
+            'datafile_type' => static::class,
             'datafile_sheet' => $this->getSheetsNames(),
         ];
 
@@ -612,7 +532,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
 
     public function afterLoad()
     {
-        //$this->finalizeDatafileErrors();
+
     }
 
     public function beforeSave()
@@ -623,72 +543,6 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
     public function afterSave()
     {
 
-    }
-
-
-    public function finalizeDatafileErrors()
-    {
-        $doubleDatafileErrorNames = $this->doubleDatafileErrorNames;
-
-
-        $datafileErrorName = $this->datafileModelErrorName;
-        $doubleDatafileErrors = $datafileErrorName::select(['error_name','field_name','value'])
-            ->where('datafile_id', '=', $this->getDatafileId())
-            ->whereIn('error_name', $doubleDatafileErrorNames)
-            ->groupBy('error_name')
-            ->groupBy('field_name')
-            ->groupBy('value')
-            ->get();
-
-        $modelDatafileName = $this->modelDatafileName;
-        $model = new $modelDatafileName;
-
-        foreach ($doubleDatafileErrors as $doubleDatafileError) {
-
-            $errorName = $doubleDatafileError->error_name;
-            $column = $doubleDatafileError->field_name;
-            $columnValue = $doubleDatafileError->value;
-            $methodName = 'doubleErrorModels' . $errorName;
-            if (method_exists($this, $methodName)) {
-                $models = $this->$methodName($doubleDatafileError);
-            } else {
-                $models = $modelDatafileName::where($column, '=', $columnValue)
-                    ->where($model->getDatafileIdField(), '=', $this->getDatafileId())
-                    ->get();
-                $datafileErrorName::where('datafile_id', '=', $this->getDatafileId())
-                    ->where('error_name', '=', $errorName)
-                    ->where('field_name', '=', $column)
-                    ->where('value', '=', $columnValue)
-                    ->delete();
-            }
-            $modelRows = $models->pluck('row')->all();
-
-            if (count($models) > 1) {
-                foreach ($models as $currModel) {
-                    $datafile_table_id = $currModel->getKey();
-                    $row = $currModel->getRowIndexValue();
-                    $paramString = "Records: " . implode(',', $modelRows);
-
-                    $datafileErrorName::create(array(
-                        'datafile_table_type' => trim($modelDatafileName, "\\"),
-                        'datafile_table_id' => $datafile_table_id,
-                        'datafile_id' => $this->getDatafileId(),
-                        'field_name' => $column,
-                        'error_name' => $errorName,
-                        'type' => 'error',
-                        //per ora sono tutti error (poi ci si puo' mettere ad esempio warning, vedremo come)
-                        'template' => 0,
-                        //per ora non ci sono templates, forse questo va a sparire
-                        'param' => $paramString,
-                        //questo sempre null, eventualmnete va aggiornato alla fine del primo caricamento delle righe
-                        'value' => $columnValue,
-                        'row' => $row,
-                        'datafile_sheet' => $this->getCurrentSheet(),
-                    ));
-                }
-            }
-
-        }
     }
 
 

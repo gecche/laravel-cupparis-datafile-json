@@ -198,6 +198,7 @@ class DatafileJsonManager
 
             $row = $datafile[$i];
             $realIndex = $this->setRealIndex($i, $initRow, $row);
+            Arr::pull($row,'shiftrow');
             if ($this->inputEncoding != $this->outputEncoding) {
                 foreach ($row as $fieldKey => $fieldValue) {
                     $row[$fieldKey] = iconv($this->inputEncoding, $this->outputEncoding . '//IGNORE', $fieldValue);

@@ -13,22 +13,20 @@ return new class extends Migration
 	 */
 	public function up()
 	{
-		Schema::create('datafiles_json_rows', function(Blueprint $table)
+		Schema::create('datafiles_json_unique_values', function(Blueprint $table)
 		{
             $table->id();
-            $table->integer('row')->unsigned()->nullable();
+            $table->string('field')->nullable();
+            $table->string('value')->nullable();
             $table->unsignedBigInteger('datafile_id')->nullable();
             $table->string('datafile_sheet')->nullable();
             $table->string('datafile_type')->nullable();
 
-            $table->unique(['datafile_id', 'datafile_sheet', 'row']);
+            $table->unique(['datafile_id', 'datafile_sheet', 'field', 'value'],'dfj_uniques');
 
-            $table->mediumText('row_data')->nullable();
-            $table->boolean('has_errors')->default(0);
-            $table->boolean('has_warnings')->default(0);
+            $table->mediumText('rows')->nullable();
+            $table->unsignedInteger('n_rows')->default(0);
 
-            $table->nullableTimestamps();
-            $table->nullableOwnerships();
 		});
 	}
 
@@ -40,7 +38,7 @@ return new class extends Migration
 	 */
 	public function down()
 	{
-		Schema::drop('datafiles_json_rows');
+		Schema::drop('datafiles_json_unique_values');
 	}
 
 };

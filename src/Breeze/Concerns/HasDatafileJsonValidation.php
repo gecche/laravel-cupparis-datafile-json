@@ -2,9 +2,14 @@
 
 namespace Gecche\Cupparis\DatafileJson\Breeze\Concerns;
 
+use Gecche\Cupparis\DatafileJson\Rules\ExistsDatafileJson;
+use Gecche\Cupparis\DatafileJson\Rules\UniqueDatafileJson;
 use Gecche\Cupparis\DatafileJson\DatafileJsonServiceProvider;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 trait HasDatafileJsonValidation
 {
@@ -62,47 +67,13 @@ trait HasDatafileJsonValidation
             $ruleset = (is_string($ruleset)) ? explode('|', $ruleset) : $ruleset;
 
             $ruleName = DatafileJsonServiceProvider::UNIQUE_DATAFILE_JSON_RULE;
-            $ruleNameFull = $ruleName . ':';
+            $ruleNameFull = $ruleName;
             foreach ($ruleset as &$rule) {
-                if (strpos($rule, $ruleNameFull) === 0) {
-                    // Stop splitting at 4 so final param will hold optional where clause
-                    $params = explode(',', substr($rule, strlen($ruleNameFull)), 5);
+                if ($this->checkUniqueDatafileRule($rule)) {
 
-                    $uniqueRules = array();
+                    $rule = new UniqueDatafileJson($datafile_id,$this->getDatafileSheetValue(),$this->datafile_type);
 
-                    //table
-                    $uniqueRules[0] = $params[0];
-
-                    // Append field name if needed
-                    if (!isset($params[1]))
-                        $uniqueRules[1] = $field;
-                    else
-                        $uniqueRules[1] = $params[1];
-
-                    if (!isset($params[2])) {
-                        if ($this->getKey()) {
-                            $uniqueRules[2] = $this->getKey();
-                        } else {
-                            $uniqueRules[2] = "NULL";
-                        }
-                    } else {
-                        $uniqueRules[2] = $params[2];
-                    }
-
-                    if (!isset($params[3]))
-                        $uniqueRules[3] = "id";
-                    else
-                        $uniqueRules[3] = $params[3];
-
-                    $uniqueRules[4] = $this->getDatafileIdField();
-                    $uniqueRules[5] = $datafile_id;
-
-                    if (isset($params[4]))
-                        $uniqueRules[6] = $params[4];
-
-
-                    $rule = $ruleNameFull . implode(',', $uniqueRules);
-                } // end if strpos unique
+                }
 
             } // end foreach ruleset
         }
@@ -126,35 +97,13 @@ trait HasDatafileJsonValidation
             $ruleName = DatafileJsonServiceProvider::EXISTS_DATAFILE_JSON_RULE;
             $ruleNameFull = $ruleName . ':';
             foreach ($ruleset as &$rule) {
-                if (strpos($rule, $ruleNameFull) === 0) {
-                    // Stop splitting at 4 so final param will hold optional where clause
-                    $params = explode(',', substr($rule, strlen($ruleNameFull)), 4);
+                if ($this->checkExistsDatafileRule($rule)) {
 
-                    //Deve averci almeno 4 parametri
-                    if (count($params) < 4)
-                        continue;
+                    $params = explode(',', substr($rule, strlen($ruleNameFull)), 3);
 
-                    $existsRules = array();
-
-                    //table datafile
-                    $existsRules[0] = $params[0];
-
-                    //field datafile
-                    $existsRules[1] = $params[1];
-
-
-                    if ($params[2] === 'NULL') {
-                        $extraParamsDatafile = array();
-                    } else {
-                        $extraParamsDatafile = explode('#', $params[2]);
-                    }
-                    array_push($extraParamsDatafile, $this->getDatafileIdField());
-                    array_push($extraParamsDatafile, $datafile_id);
-
-                    $existsRules[2] = implode('#', $extraParamsDatafile);
-                    $existsRules[3] = $params[3];
-
-                    $rule = $ruleNameFull . implode(',', $existsRules);
+                    $rule = new ExistsDatafileJson($datafile_id,$this->getDatafileSheetValue(),$this->datafile_type,
+                        Arr::get($params,0),Arr::get($params,1),Arr::get($params,2)
+                    );
                 } // end if strpos unique
 
             } // end foreach ruleset
@@ -163,5 +112,19 @@ trait HasDatafileJsonValidation
         return $rules;
     }
 
+
+    protected function checkUniqueDatafileRule($rule) {
+        if (is_string($rule)) {
+            return Str::startsWith($rule,DatafileJsonServiceProvider::UNIQUE_DATAFILE_JSON_RULE);
+        }
+        return false;
+    }
+
+    protected function checkExistsDatafileRule($rule) {
+        if (is_string($rule)) {
+            return Str::startsWith($rule,DatafileJsonServiceProvider::EXISTS_DATAFILE_JSON_RULE);
+        }
+        return false;
+    }
 
 }
