@@ -310,7 +310,7 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
 
 
         $model->setDatafileIdValue($this->getDatafileId());
-        $model->datafile_type(static::class);
+        $model->datafile_type = static::class;
 //        Log::info("Sheet:: ".$sheet);
         $model->setDatafileSheetValue($sheet);
         $model->setRowIndexValue($index);
@@ -545,6 +545,21 @@ class BreezeDatafileJsonProvider implements DatafileJsonProviderInterface
 
     }
 
+
+    public function flush() {
+
+        $this->_flush();
+
+    }
+
+    protected function _flush() {
+
+        DB::table('datafiles_json_unique_values')
+            ->where('datafile_id',$this->datafile_id)
+            ->where('datafile_sheet',$this->currentSheet)
+            ->where('datafile_type',static::class)
+            ->delete();
+    }
 
     /*
      * VARIE RIFATTORIZZAZIONE

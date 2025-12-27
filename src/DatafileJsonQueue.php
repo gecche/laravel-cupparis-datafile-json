@@ -94,6 +94,7 @@ class DatafileJsonQueue extends MainQueue
                 DatafileJson::save();
             }
             DatafileJson::afterSave();
+            DatafileJson::flush();
             $this->jobEnd();
         } catch (Exception $e) {
             $this->jobEnd(1, $e->getMessage());

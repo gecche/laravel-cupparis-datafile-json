@@ -250,6 +250,11 @@ class DatafileJsonManager
         $this->datafileProvider->afterSave();
     }
 
+    public function flush()
+    {
+        $this->datafileProvider->flush();
+    }
+
     public function save()
     {
 
