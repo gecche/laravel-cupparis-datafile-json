@@ -9,7 +9,7 @@ return [
       |
      */
     'providers' => [
-
+        //'dcomune' => \App\DatafileJsonProviders\ComuneIstat::class
     ],
 
 //    'datafile_model_row' => \App\Models\DatafileJsonRow::class,
