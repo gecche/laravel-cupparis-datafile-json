@@ -3,6 +3,7 @@
 namespace Gecche\Cupparis\DatafileJson\Rules;
 
 use Closure;
+use Gecche\Cupparis\DatafileJson\Breeze\Concerns\UniqueValuesDatafileQueries;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\ValidatorAwareRule;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,7 @@ use Illuminate\Validation\Validator;
 class UniqueDatafileJson implements ValidationRule
 {
 
+    use UniqueValuesDatafileQueries;
 
     protected $datafileId;
     protected $datafileSheet;
