@@ -54,4 +54,63 @@ return [
             'pagination_steps' => [10, 25, 50, 300],
         ],
     ],
+    'edit' => [
+        'model' => 'datafile_json_row',
+        "actions" => [
+            'uploadfile' => [
+                'allowed_fields' => [
+                    'resource',
+                ],
+                'fields' => [
+                    'resource' => [
+                        'resource_type' => 'attachment',
+                    ],
+                ],
+            ],
+        ],
+        'fields' => [
+            'id' => [
+
+            ],
+            'mappatura_id' => [
+
+            ],
+
+            'resource' => [
+                'resource_type' => 'attachment',
+            ]
+
+//            'username' => [
+//                //'default' => 'user'
+//            ],
+//            'cliente_id' => [
+//                'nullable' => true,
+//                'options' => 'relation:cliente',
+//            ],
+//            'attivo' => [
+//                'options' => 'boolean',
+//            ],
+        ],
+//        'relations' => [
+//            'tickets' => [
+//                'fields' => [
+//                    'id' => [
+//
+//                    ],
+//                    'codice' => [
+//                        'nullable' => true,
+//                        'options' => 'relation:cliente',
+//                        //'default' => 'pippo',
+//                    ],
+//                    'descrizione' => [
+//
+//                    ],
+//                ],
+//
+//            ],
+//        ],
+        'params' => [
+
+        ],
+    ],
 ];
